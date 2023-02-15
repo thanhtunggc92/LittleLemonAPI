@@ -1,0 +1,26 @@
+Manager:
+add , remove many items , update anyuser to delivery person
+
+
+Customer:
+does not belong to any group:
+brown , filter , search items 
+create api to add item to cart and place order
+caching: cart will be emplty when place order
+one customer should have one cart
+one cart can have many items
+
+can see all the order
+Delivery_crew:
+
+create api for manager can assign order or browse order to delivery person
+manager can filter order by status
+
+
+delivery person:
+
+browse all order 
+mark deliveried
+
+throttling
+limitted 5 api per minutes
