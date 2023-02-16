@@ -1,6 +1,6 @@
 from rest_framework import serializers 
 from .models import MenuItem,Category,Cart,Order,OrderItem
-
+from django.contrib.auth.models import User
 
 
 
@@ -24,18 +24,27 @@ class CartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ['user','menuitem','quantity','unit_price','price']
 
-
+    
 class OrderSerializer(serializers.ModelField):
     class Meta:
         model = Order
-        total = serializers.SerializerMethodField(method_name='total_price')
+     
         fields = ['user','delivery_crew','status','total','date']
 
     def total_price(self,product:OrderItem):
-        return product.quantity * product.unit_price
+
+        total += product.price
+        return f'{total}'
 
 class OrderItemSerializer(serializers.ModelSerializer):
         class Meta: 
             model = OrderItem
+          
             fields= ['order','menuitem','quantity','unit_price','price']
-            
+     
+     
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id','username','email']
+    
