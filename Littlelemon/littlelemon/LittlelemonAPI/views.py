@@ -17,7 +17,7 @@ class MenuItemsListView(generics.ListCreateAPIView):
  
     queryset = MenuItem.objects.all()
     serializer_class= MenuItemSerializer
-
+    ordering_fields = ["title", "price"]
     def get_permissions(self):
         permission_class = [] # allow any user can retieve menuitem
         if self.request.user != 'GET':
@@ -128,7 +128,7 @@ class OrderListView(generics.ListCreateAPIView):
     permission_classes= [IsAuthenticated]
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
-    
+    ordering_fields = ["user", "status", "total"]
     def get_queryset(self):
         
         user = self.request.user    
