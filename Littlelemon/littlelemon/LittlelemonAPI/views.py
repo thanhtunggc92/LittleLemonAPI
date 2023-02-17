@@ -36,30 +36,63 @@ class CartView(generics.ListCreateAPIView):
 class ManagerView(generics.ListCreateAPIView):
     queryset = User.objects.filter(groups__name="manager")
     serializer_class = UserSerializer
-    permission_classes = [IsAdminUser|IsManager]
-    # def get(self,request, *agrs,**kwagrs):
-    #     username= request.data['username']
-    #     if request.metho =='GET':
-    #         manager= UserSerializer
+    permission_classes = [IsAdminUser|IsManager&IsAuthenticated]
+
 
     def post(self,request,*agrs,**kwagrs):
         username = request.data['username']
-
-        if username:
-
+        if username == request.POST['username']:
             user = get_object_or_404(User,username=username)
             manager= Group.objects.get(name='manager')
-            if manager == 'manager':
+            
+            try:
                 if request.method == 'POST':
                     manager.user_set.add(user)
                     return Response(data={'message': 'Sucessfully add user to manager group'}, status=status.HTTP_201_CREATED)
-            else:
+            except User.DoesNotExist:
                 return Response(data={'message':'You are not belong to manager group.'},status=status.HTTP_400_BAD_REQUEST)
         return Response(data={'message': 'somthing went wrong'}, status= status.HTTP_400_BAD_REQUEST)
         
 class ManagerDeleteView(generics.RetrieveDestroyAPIView):
-    pass
+        permission_classes= [IsAdminUser|IsManager&IsAuthenticated]
+        queryset = User.objects.filter(groups__name="manager")
+        serializer_class = UserSerializer
+        def delete(self,request,pk=None):
+            try:
+                user= User.objects.get(pk=pk)    
+                manager = Group.objects.get(name='manager')
+                manager.user_set.remove(user)
+                return Response(data={'message':f'You has been removed {user.username} from the group'},status=status.HTTP_201_CREATED)
+            except User.DoesNotExist:
+                return Response(data={'message':f'There is no {user.username} from the data'},status=status.HTTP_404_NOT_FOUND )
 
-#  if request.method == 'DELETE':
-#     manager.user_set.remove(user)
-#     return Response(data={'message': 'Sucessfully add delete to manager group'}, status=status.HTTP_201_CREATED)
+
+class DeleiveryCrewListView(generics.ListCreateAPIView):
+    queryset = User.objects.filter(groups__name="delivery_crew")
+    serializer_class = UserSerializer
+    permission_classes = [IsManager|IsDeliveryCrew&IsAuthenticated]
+
+    def post(self,request,*agrs,**kwagrs):
+        username = request.data['username']
+        if username:
+            user = get_object_or_404(User,username=username)
+            delivery_crew= Group.objects.get(name='delivery_crew')
+          
+            if request.method == 'POST':
+                delivery_crew.user_set.add(user)
+                return Response(data={'message': 'Sucessfully add user to delivery group'}, status=status.HTTP_201_CREATED)
+            
+        return Response(data={'message': 'somthing went wrong'}, status= status.HTTP_400_BAD_REQUEST)
+class DeliveryCrewDeleteView(generics.RetrieveDestroyAPIView):
+    permission_classes= [IsManager|IsDeliveryCrew&IsAuthenticated]
+    queryset = User.objects.filter(groups__name="delivery_crew")
+    serializer_class = UserSerializer
+    def delete(self,request,pk=None):
+        try:
+            user= User.objects.get(pk=pk)    
+            manager = Group.objects.get(name='delivery_crew')
+            manager.user_set.remove(user)
+            return Response(data={'message':f'You has been removed {user.username} from the delivery group'},status=status.HTTP_201_CREATED)
+        except:
+            
+            return Response(data={'message':f'There is no {user.username} from the data'},status=status.HTTP_404_NOT_FOUND )
