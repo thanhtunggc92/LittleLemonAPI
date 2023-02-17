@@ -25,16 +25,7 @@ class CartSerializer(serializers.ModelSerializer):
         fields = ['user','menuitem','quantity','unit_price','price']
 
     
-class OrderSerializer(serializers.ModelField):
-    class Meta:
-        model = Order
-     
-        fields = ['user','delivery_crew','status','total','date']
 
-    def total_price(self,product:OrderItem):
-
-        total += product.price
-        return f'{total}'
 
 class OrderItemSerializer(serializers.ModelSerializer):
         class Meta: 
@@ -47,4 +38,17 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id','username','email']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    order_items=OrderItemSerializer(many=True,read_only=True)
+    class Meta:
+        model = Order
+     
+        fields = ['user','delivery_crew','status','total','date','order_items']
+
+        extra_kwargs = {
+            "total": {"read_only": True},
+            "date": {"read_only": True},
+        }
     
